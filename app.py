@@ -13,7 +13,7 @@ migrate = Migrate(app, db)
 
 from mod_users import users
 
-
+from views import hello_world
 
 from mod_admin import admin
 
