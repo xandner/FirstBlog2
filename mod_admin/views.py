@@ -19,7 +19,7 @@ def login():
         if not user:
             abort(400)
 
-        if not user.check_password(form.password):
+        if not user.check_password(form.password.data):
             return 'incorrect password', 400
         session['email'] = user.email
         return 'logged in'
