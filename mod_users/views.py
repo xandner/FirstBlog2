@@ -1,6 +1,6 @@
 from flask import request, render_template,flash
 from app import db
-
+from sqlalchemy.exc import IntegrityError
 from . import users
 from .forms import RegisterForm
 from .models import User
@@ -20,9 +20,15 @@ def register():
         new_user.fullname=form.full_name.data
         new_user.setPassword(form.password.data)
         new_user.email=form.email.data
-        db.session.add(new_user)
-        db.session.commit()
-        flash('user was added','success')
+
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('user was added', 'success')
+        except IntegrityError:
+            db.session.rollback()
+            flash('error.. email used ', 'error')
+
 
 
 
