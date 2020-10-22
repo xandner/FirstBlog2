@@ -16,6 +16,7 @@ from mod_users import users
 from views import hello_world
 
 from mod_admin import admin
+from  mod_blog import blog
 
 app.register_blueprint(admin)
 app.register_blueprint(users)

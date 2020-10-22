@@ -1,0 +1,21 @@
+{% extends 'admin/base.html' %}
+{% block title %} admin doshboard {% endblock %}
+
+{% block page_content %}
+    welcome admin
+    {% with messages = get_flashed_messages(True) %}
+            {% if messages %}
+                <div class="row">
+                    {% for message in messages %}
+
+                    <div class="card {{ message[0] }}">{{ message[1] }}</div>
+                    {% endfor %}
+                </div>
+{#                <ul class=flashes>#}
+{#                    #}
+{#                        <li>{</li>#}
+{#                    #}
+{#                </ul>#}
+            {% endif %}
+        {% endwith %}
+{% endblock %}

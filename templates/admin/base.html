@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div>
+        <ul>
+            <li><a href="{{ url_for('admin.logout') }}"> loguot </a> </li>
+            <li><a href="{{ url_for('admin.create_post') }}"> add new post </a> </li>
+            <li><a href="{{ url_for('admin.admin_index') }}">dashboard</a></li>
+        </ul>
+    </div>
+    {% block page_content %}
+    {% endblock %}
+{% endblock %}
