@@ -1,0 +1,26 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}
+    create new category
+{% endblock %}
+{% block page_content %}
+    <h1>create category</h1>
+    <form action="{{ url_for('admin.modify_category', category_id=category.id )}}" method="post">
+        {% with messages = get_flashed_messages(True) %}
+            {% if messages %}
+                <div class="row">
+                    {% for message in messages %}
+
+                    <div class="card {{ message[0] }}">{{ message[1] }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {{ form.hidden_tag() }}
+        name:{{ form.name }}<br>
+        slug:{{ form.slug }}<br>
+        description:{{ form.description }}<br>
+        <input type="submit" value="send">
+    </form>
+{% endblock %}
+

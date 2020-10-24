@@ -1,10 +1,10 @@
 from flask import session, render_template, request, abort, jsonify, flash, redirect, url_for
 from mod_users.models import User
-from mod_users.forms import LoginForm, RegisterForm,ModifyPostForm
+from mod_users.forms import LoginForm, RegisterForm, ModifyPostForm
 from . import admin
 from .utils import admin_only_view
-from mod_blog.forms import CreatePostForm
-from mod_blog.models import Post
+from mod_blog.forms import CreatePostForm, CategoryForm
+from mod_blog.models import Post, Category
 from app import db
 from sqlalchemy.exc import IntegrityError
 
@@ -53,6 +53,7 @@ def logout():
 @admin_only_view
 def create_post():
     form = CreatePostForm(request.form)
+
     if request.method == 'POST':
         if not form.validate_on_submit():
             return 'validation on submit error'
@@ -137,12 +138,12 @@ def single_post(slug):
     return post.title
 
 
-@admin.route('/posts/modify/<int:post_id>',methods=['GET','POST'])
+@admin.route('/posts/modify/<int:post_id>', methods=['GET', 'POST'])
 @admin_only_view
 def modify_post(post_id):
     post = Post.query.get_or_404(post_id)
-    form=ModifyPostForm(obj=post)
-    if request.form=='POST':
+    form = ModifyPostForm(obj=post)
+    if request.form == 'POST':
         if not form.validate_on_submit():
             return render_template('admin/modify_post.html', form=form, post=post)
 
@@ -157,4 +158,73 @@ def modify_post(post_id):
             flash('error')
             db.session.rollback()
 
-    return render_template('admin/modify_post.html',form=form,post=post)
+    return render_template('admin/modify_post.html', form=form, post=post)
+
+
+@admin.route('/category/new', methods=['GET', 'POST'])
+@admin_only_view
+def create_category():
+    form = CategoryForm(request.form)
+    if request.method == 'POST':
+        if not form.validate_on_submit():
+            return 'validation on submit error'
+
+        new_category = Category()
+        new_category.name = form.name.data
+        new_category.slug = form.slug.data
+        new_category.description = form.description.data
+        try:
+            db.session.add(new_category)
+            db.session.commit()
+            flash('category created')
+            return redirect(url_for('admin.admin_index'))
+        except IntegrityError:
+            db.session.rollback()
+            flash('error')
+            return render_template('admin/create_category.html', form=form)
+
+    return render_template('admin/create_category.html', form=form)
+
+
+@admin.route('/categories')
+@admin_only_view
+def list_categories():
+    categories = Category.query.all()
+    return render_template('admin/list_categories.html', categories=categories)
+
+
+@admin.route('/category/<string:name>')
+def single_category(name):
+    category = Category.query.filter(Category.name == name).first_or_404()
+    return category.name
+
+
+@admin.route('/category/delete/<int:category_id>')
+@admin_only_view
+def delete_category(category_id):
+    cat = Category.query.get_or_404(category_id)
+    db.session.delete(cat)
+    db.session.commit()
+    flash('category deleted')
+    return redirect(url_for('admin.list_categories'))
+
+
+@admin.route('/category/modify/<int:category_id>',methods=['GET','POST'])
+@admin_only_view
+def modify_category(category_id):
+    cat=Category.query.get_or_404(category_id)
+    form=CategoryForm(obj=cat)
+    if request.method=='POST':
+        if not form.validate_on_submit():
+            return render_template('admin/modify_category.html',form=form,category=cat)
+        cat.name=form.name.data
+        cat.description=form.description.data
+        cat.description=form.description.data
+        cat.slug=form.slug.data
+        try:
+            db.session.commit()
+            flash('category updated ')
+        except IntegrityError:
+            db.session.rollback()
+            flash('error')
+    return render_template('admin/modify_category.html',form=form,category=cat)

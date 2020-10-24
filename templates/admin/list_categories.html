@@ -1,0 +1,27 @@
+{% extends 'admin/base.html' %}
+{% block title %}
+    category
+{% endblock %}
+
+{% block page_content %}
+    <h1> categories </h1>
+    {% with messages = get_flashed_messages(True) %}
+            {% if messages %}
+                <div class="row">
+                    {% for message in messages %}
+
+                    <div class="card {{ message[0] }}">{{ message[1] }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+    {% endwith %}
+    {% for c in categories %}
+        <div>
+            <h3><a href="{{ url_for('admin.single_category',name=c.name) }}">{{ c.name }} </a><br></h3>
+            <p>{{ c.description }}</p>
+            <a class="button" href="{{ url_for('admin.delete_category',category_id=c.id) }}">delete</a>
+            <a class="button" href="{{ '#'or url_for('admin.modify_post',category_id=c.id) }}">modify</a>
+        </div>
+    {% endfor %}
+
+{% endblock %}
