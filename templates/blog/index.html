@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+{% block title %}
+    Blog
+{% endblock %}
+
+{% block page_content %}
+    <h1> blog </h1>
+    {% for p in posts %}
+        <div>
+            <h3><a href="{{ url_for('blog.single_post',slug=p.slug) }}">{{ p.title }} </a><br></h3>
+            <p>{{ p.summary or p.content }}</p>
+        </div>
+    {% endfor %}
+
+{% endblock %}

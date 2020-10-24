@@ -1,0 +1,23 @@
+{% extends 'admin/base.html' %}
+{% block title %}
+    admin
+{% endblock %}
+
+{% block page_content %}
+    <h1> posts </h1>
+    <div class="row">
+                    {% for message in messages %}
+
+                    <div class="card {{ message[0] }}">{{ message[1] }}</div>
+                    {% endfor %}
+                </div>
+    {% for p in posts %}
+        <div>
+            <h3><a href="{{ url_for('admin.single_post',slug=p.slug) }}">{{ p.title }} </a><br></h3>
+            <p>{{ p.summary or p.content }}</p>
+            <a class="button" href="{{ url_for('admin.delete_post',post_id=p.id) }}">delete</a>
+            <a class="button" href="{{ url_for('admin.modify_post',post_id=p.id) }}">modify</a>
+        </div>
+    {% endfor %}
+
+{% endblock %}

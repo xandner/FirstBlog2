@@ -1,10 +1,12 @@
 {% extends 'admin/base.html' %}
-{% block title %} admin doshboard {% endblock %}
 
+{% block title %}
+    modify {{ post.title }}
+{% endblock %}
 {% block page_content %}
-    {% include 'admin/_includes/navigation.html' %}
-    welcome admin
-    {% with messages = get_flashed_messages(True) %}
+    <h1>{{ post.title }}</h1>
+    <form action="{{ url_for('admin.modify_post',post_id=post.id) }}" method="post">
+        {% with messages = get_flashed_messages(True) %}
             {% if messages %}
                 <div class="row">
                     {% for message in messages %}
@@ -19,4 +21,12 @@
 {#                </ul>#}
             {% endif %}
         {% endwith %}
+        {{ form.hidden_tag() }}
+        title:{{ form.title }}<br>
+        slug:{{ form.slug }}<br>
+        summary:{{ form.summary }}<br>
+        content:{{ form.content }}<br>
+        <input type="submit" value="save">
+    </form>
 {% endblock %}
+

@@ -1,4 +1,4 @@
-from flask import request, render_template,flash
+from flask import request, render_template, flash
 from app import db
 from sqlalchemy.exc import IntegrityError
 from . import users
@@ -13,13 +13,13 @@ def register():
         if not form.validate_on_submit():
             return render_template('users/register.html', form=form)
         if not form.password.data == form.confirm_password.data:
-            msg='passwords dosnt match'
+            msg = 'passwords dosnt match'
             form.password.errors.append(msg)
             form.confirm_password.errors.append(msg)
-        new_user=User()
-        new_user.fullname=form.full_name.data
+        new_user = User()
+        new_user.fullname = form.full_name.data
         new_user.setPassword(form.password.data)
-        new_user.email=form.email.data
+        new_user.email = form.email.data
 
         try:
             db.session.add(new_user)
@@ -28,8 +28,5 @@ def register():
         except IntegrityError:
             db.session.rollback()
             flash('error.. email used ', 'error')
-
-
-
 
     return render_template('users/register.html', form=form)

@@ -1,0 +1,31 @@
+{% extends 'admin/base.html' %}
+{% block title %}
+    Admin Blog | users list
+{% endblock %}
+{% include 'admin/_includes/navigation.html' %}
+{% block page_content %}
+    <table>
+        <caption>users</caption>
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>fullname</th>
+            <th>email</th>
+            <th>role</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in context %}
+
+
+
+            <tr>
+                <td data-label="id">{{ user.id }}</td>
+                <td data-label="faullname">{{ user.fullname or '_' }}</td>
+                <td data-label="email">{{ user.email }}</td>
+                <td data-label="role">{{ 'Admin' if user.role else 'User' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
