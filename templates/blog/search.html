@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block page_content %}
-    <h1> resault </h1>
+    <h1> resault for {{ search_query }}</h1>
     {% for p in posts %}
         <div>
             <h3><a href="{{ url_for('blog.single_post',slug=p.slug) }}">{{ p.title }} </a><br></h3>

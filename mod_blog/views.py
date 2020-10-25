@@ -1,7 +1,7 @@
 from flask import render_template, request
 from . import blog
 from .forms import SearchForm
-from .models import Post
+from .models import Post, Category
 from flask_sqlalchemy import get_debug_queries
 from sqlalchemy import or_
 
@@ -26,7 +26,7 @@ def single_post(slug):
 @blog.route('/search')
 def search():
     search_form=SearchForm()
-    search_query = request.args.get('q', '')
+    search_query = request.args.get('search_query', '')
     title_cond = Post.title.ilike(f'%{search_query}%')
     summary_cond = Post.summary.ilike(f'%{search_query}%')
     content_cond = Post.content.ilike(f'%{search_query}%')
@@ -38,4 +38,12 @@ def search():
         )
     ).all()
     print(found_posts)
-    return render_template('blog/search.html', posts=found_posts, search_form=search_form)
+    return render_template('blog/search.html', posts=found_posts, search_form=search_form,search_query=search_query)
+
+
+@blog.route('/category/<string:slug>')
+def single_category(slug):
+    search_form = SearchForm()
+    categoyr=Category.query.filter(Category.slug==slug).first_or_404()
+    search_query=slug
+    return render_template('blog/search.html', posts=categoyr.posts, search_form=search_form,search_query=search_query)
