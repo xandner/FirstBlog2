@@ -3,10 +3,14 @@ from mod_users.models import User
 from mod_users.forms import LoginForm, RegisterForm
 from . import admin
 from .utils import admin_only_view
-from mod_blog.forms import CreatePostForm, CategoryForm,PostForm
+from mod_blog.forms import CreatePostForm, CategoryForm, PostForm
 from mod_blog.models import Post, Category
 from app import db
 from sqlalchemy.exc import IntegrityError
+from mod_uploads.forms import FileUploadForm
+from mod_uploads.models import File
+from werkzeug.utils import secure_filename
+import uuid
 
 
 @admin.route('/')
@@ -53,8 +57,8 @@ def logout():
 @admin_only_view
 def create_post():
     form = PostForm(request.form)
-    categories=Category.query.all()
-    form.categories.choices=[(category.id,category.name)for category in categories]
+    categories = Category.query.all()
+    form.categories.choices = [(category.id, category.name) for category in categories]
 
     if request.method == 'POST':
         if not form.validate_on_submit():
@@ -65,7 +69,7 @@ def create_post():
         new_post.content = form.content.data
         new_post.slug = form.slug.data
         new_post.summary = form.summary.data
-        new_post.category=[Category.query.get(category_id) for category_id in form.categories.data]
+        new_post.category = [Category.query.get(category_id) for category_id in form.categories.data]
         try:
             db.session.add(new_post)
             db.session.commit()
@@ -149,17 +153,16 @@ def modify_post(post_id):
     categories = Category.query.all()
     form.categories.choices = [(category.id, category.name) for category in categories]
     if request.method != 'POST':
-        form.categories.data=[category.id for category in post.category]
+        form.categories.data = [category.id for category in post.category]
     if request.form == 'POST':
         if not form.validate_on_submit():
             return render_template('admin/modify_post.html', form=form, post=post)
-
 
         post.title = form.title.data
         post.content = form.content.data
         post.slug = form.slug.data
         post.summary = form.summary.data
-        post.category=form.categories.choices=[(category.id,category.name)for category in categories]
+        post.category = form.categories.choices = [(category.id, category.name) for category in categories]
         try:
             db.session.commit()
             flash('post updated')
@@ -218,22 +221,45 @@ def delete_category(category_id):
     return redirect(url_for('admin.list_categories'))
 
 
-@admin.route('/category/modify/<int:category_id>',methods=['GET','POST'])
+@admin.route('/category/modify/<int:category_id>', methods=['GET', 'POST'])
 @admin_only_view
 def modify_category(category_id):
-    cat=Category.query.get_or_404(category_id)
-    form=CategoryForm(obj=cat)
-    if request.method=='POST':
+    cat = Category.query.get_or_404(category_id)
+    form = CategoryForm(obj=cat)
+    if request.method == 'POST':
         if not form.validate_on_submit():
-            return render_template('admin/modify_category.html',form=form,category=cat)
-        cat.name=form.name.data
-        cat.description=form.description.data
-        cat.description=form.description.data
-        cat.slug=form.slug.data
+            return render_template('admin/modify_category.html', form=form, category=cat)
+        cat.name = form.name.data
+        cat.description = form.description.data
+        cat.description = form.description.data
+        cat.slug = form.slug.data
         try:
             db.session.commit()
             flash('category updated ')
         except IntegrityError:
             db.session.rollback()
             flash('error')
-    return render_template('admin/modify_category.html',form=form,category=cat)
+    return render_template('admin/modify_category.html', form=form, category=cat)
+
+
+@admin.route('library/upload', methods=['GET', 'POST'])
+@admin_only_view
+def upload_file():
+    form = FileUploadForm()
+    if request.method == 'POST':
+        if not form.validate_on_submit():
+            return '1'
+        file_name = f'{uuid.uuid1()}_{secure_filename(form.file.data.filename)}'
+        new_file = File()
+        new_file.file_name = file_name
+        try:
+            db.session.add(new_file)
+            db.session.commit()
+            form.file.data.save(f'static/uploads/{file_name}')
+            flash(f'file uploaded on {url_for("static", file_name="uploads/"+file_name)}')
+            print(f'file uploaded on {url_for("static", file_name="uploads/"+file_name)}')
+        except Exception:
+            db.session.rollback()
+            return str(Exception)
+
+    return render_template('admin/upload_file.html', form=form)
