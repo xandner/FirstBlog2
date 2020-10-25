@@ -11,14 +11,14 @@
                 <div class="row">
                     {% for message in messages %}
 
-                    <div class="card {{ message[0] }}">{{ message[1] }}</div>
+                        <div class="card {{ message[0] }}">{{ message[1] }}</div>
                     {% endfor %}
                 </div>
-{#                <ul class=flashes>#}
-{#                    #}
-{#                        <li>{</li>#}
-{#                    #}
-{#                </ul>#}
+                {#                <ul class=flashes>#}
+                {#                    #}
+                {#                        <li>{</li>#}
+                {#                    #}
+                {#                </ul>#}
             {% endif %}
         {% endwith %}
         {{ form.hidden_tag() }}
@@ -26,6 +26,7 @@
         slug:{{ form.slug }}<br>
         summary:{{ form.summary }}<br>
         content:{{ form.content }}<br>
+        category:{{ form.categories }}<br>
         <input type="submit" value="save">
     </form>
 {% endblock %}

@@ -1,9 +1,9 @@
 from flask import session, render_template, request, abort, jsonify, flash, redirect, url_for
 from mod_users.models import User
-from mod_users.forms import LoginForm, RegisterForm, ModifyPostForm
+from mod_users.forms import LoginForm, RegisterForm
 from . import admin
 from .utils import admin_only_view
-from mod_blog.forms import CreatePostForm, CategoryForm
+from mod_blog.forms import CreatePostForm, CategoryForm,PostForm
 from mod_blog.models import Post, Category
 from app import db
 from sqlalchemy.exc import IntegrityError
@@ -52,7 +52,9 @@ def logout():
 @admin.route('/posts/new', methods=['GET', 'POST'])
 @admin_only_view
 def create_post():
-    form = CreatePostForm(request.form)
+    form = PostForm(request.form)
+    categories=Category.query.all()
+    form.categories.choices=[(category.id,category.name)for category in categories]
 
     if request.method == 'POST':
         if not form.validate_on_submit():
@@ -63,6 +65,7 @@ def create_post():
         new_post.content = form.content.data
         new_post.slug = form.slug.data
         new_post.summary = form.summary.data
+        new_post.category=[Category.query.get(category_id) for category_id in form.categories.data]
         try:
             db.session.add(new_post)
             db.session.commit()
@@ -142,15 +145,21 @@ def single_post(slug):
 @admin_only_view
 def modify_post(post_id):
     post = Post.query.get_or_404(post_id)
-    form = ModifyPostForm(obj=post)
+    form = PostForm(obj=post)
+    categories = Category.query.all()
+    form.categories.choices = [(category.id, category.name) for category in categories]
+    if request.method != 'POST':
+        form.categories.data=[category.id for category in post.category]
     if request.form == 'POST':
         if not form.validate_on_submit():
             return render_template('admin/modify_post.html', form=form, post=post)
+
 
         post.title = form.title.data
         post.content = form.content.data
         post.slug = form.slug.data
         post.summary = form.summary.data
+        post.category=form.categories.choices=[(category.id,category.name)for category in categories]
         try:
             db.session.commit()
             flash('post updated')
