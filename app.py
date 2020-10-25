@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import Development
 from flask_migrate import Migrate
+from redis import Redis
 # import views
 
 
@@ -10,7 +11,7 @@ app.config.from_object(Development)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
+redis=Redis.from_url(app.config['REDIS_SERVER_URL'])
 from mod_users import users
 
 from views import hello_world

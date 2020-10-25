@@ -6,6 +6,7 @@ class Config:
     FLASK_ENV=os.getenv('FLASK_ENV')
     SQLALCHEMY_TRACK_MODIFICATIONS=os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS')
     SECRET_KEY=os.getenv('SECRET_KEY')
+    REDIS_SERVER_URL = os.getenv('REDIS_SERVER_URL')
 
 
 class Development(Config):
